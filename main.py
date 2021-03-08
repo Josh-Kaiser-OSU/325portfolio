@@ -1,5 +1,6 @@
 """
-
+Author: Joshua Kaiser
+Assignment: CS 325 Portfolio Assignment
 """
 from os import system, name
 
