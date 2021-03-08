@@ -43,7 +43,7 @@ class Game:
         column = alphabet.index(location[0])
         return row, column
 
-    def did_win(self):
+    def board_filled(self):
         for row_idx in range(self.row_size):
             for col_idx in range(self.row_size):
                 if self.board[row_idx][col_idx] == ' ':
@@ -53,18 +53,22 @@ class Game:
     def play_game(self):
         playing = True
         while playing:
-            self.user_choices()
-            self.lighten_board()
-            if self.did_win():
+            print(self)
+
+            # Check if the player won
+            if self.valid_board() and self.board_filled():
                 print("\t\t YOU WIN!\n")
                 input("Press return to quit")
                 return
+            self.user_choices()
+            self.lighten_board()
+
+            # Clear the screen
             for _ in range(2):
                 if name == 'nt':
                     _ = system('cls')
                 else:
                     _ = system('clear')
-            print(self)
 
     def is_valid_flash_placement(self, location):
         row, column = self.convert_notation(location)
@@ -132,10 +136,38 @@ class Game:
                 if item == '¥':
                     self.light_cross(row_idx, col_idx)
 
+    def restriction_met(self, row, col):
+        allowed_flashlights = int(self.board[row][col])
+        flashlight_count = 0
+        # left
+        if col - 1 >= 0 and self.board[row][col-1] == '¥':
+            flashlight_count += 1
+        # right
+        if col + 1 < self.row_size and self.board[row][col+1] == '¥':
+            flashlight_count += 1
+        # top
+        if row - 1 >= 0 and self.board[row-1][col] == '¥':
+            flashlight_count += 1
+        # bottom
+        if row + 1 < self.row_size and self.board[row+1][col] == '¥':
+            flashlight_count += 1
+
+        if flashlight_count > allowed_flashlights:
+            return False
+        else:
+            return True
+
+    def valid_board(self):
+        restriction_squares = '1234'
+        for row_idx in range(self.row_size):
+            for col_idx in range(self.row_size):
+                if self.board[row_idx][col_idx] in restriction_squares and not self.restriction_met(row_idx, col_idx):
+                    return False
+        return True
+
 
 if __name__ == "__main__":
     squares_per_row = 7
     this_game = Game(squares_per_row)
     this_game.place_squares()
-    print(this_game)
     this_game.play_game()
